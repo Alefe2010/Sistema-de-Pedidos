@@ -15,11 +15,11 @@ export class PedidoService {
        this.pedidoRepository.registrarPedido(pedido);
        return pedido;
     }
-    public adicionarProduto(
+    public async adicionarProduto(
         numeroPedido: number,
         idProduto: number,
         quantidade: number
-    ): void {
+    ): Promise<void> {
         const pedido = this.pedidoRepository.consultarPedido(numeroPedido);
         if(!pedido){ 
             throw new Error(`Pedido ${numeroPedido} não encontrado!`);
@@ -27,7 +27,7 @@ export class PedidoService {
         if (pedido.status !== "ABERTO") {
             throw new Error("Não é possível alterar um pedido que já foi finalizado ou cancelado.");
         }
-        const produto = this.produtoRepository.buscarPorId(idProduto);
+        const produto = await this.produtoRepository.buscarPorId(idProduto);
         if (!produto){
             throw new Error(`Produto ${idProduto} não encontrado!`);
         }
@@ -38,8 +38,8 @@ export class PedidoService {
     public salvarProduto(produto: Produto): void{
         this.produtoRepository.salvar(produto);
     }
-    public obterProduto(id: number): Produto {
-        const produto = this.produtoRepository.buscarPorId(id);
+    public async obterProduto(id: number): Promise<Produto> {
+        const produto = await this.produtoRepository.buscarPorId(id);
 
         if(!produto){
             throw new Error("Produto não encontrado!");
@@ -49,8 +49,9 @@ export class PedidoService {
     public obterPedido(numero: number): Pedido | undefined {
         return this.pedidoRepository.consultarPedido(numero)
     }
-    public listarCardapio(): Produto[] {
-        return this.produtoRepository.listaDeProdutos;
+    public async listarCardapio(): Promise<Produto[]> {
+        const produtos = await this.produtoRepository.listaDeProdutos();
+        return produtos
     }
     public removerProduto(numero: number, idProduto: number): void {
         const pedido = this.pedidoRepository.consultarPedido(numero);
